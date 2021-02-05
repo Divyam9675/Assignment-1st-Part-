@@ -9,65 +9,39 @@ import (
 )
 
 func main() {
-	arguments := os.Args
-	if len(arguments) == 1 {
-		fmt.Println("Provide host:Port")
+	args := os.Args
+	if len(args) == 1 {
+		fmt.Println("Please provide host:port.")
 		return
 	}
 
-	CONNECT := arguments[1]
-	c, err := net.Dial("tcp", CONNECT)
+	CONNECTION := args[1]
+	c, err := net.Dial("tcp", CONNECTION)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-
+	q := []string{}
 	for {
+		//READ THE USER INPUT
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Send Message -> ")
+		fmt.Print("CLIENT : ")
 		text, _ := reader.ReadString('\n')
+		q = append(q, text)
+		fmt.Println("queue is =", q)
+		//user input is sent to the TCP server over the network
 		fmt.Fprintf(c, text+"\n")
 
-		//message, _ := bufio.NewReader(c).ReadString('\n')
-		//fmt.Print("->: " + message)
-		if strings.TrimSpace(string(text)) == "stop" {
-			fmt.Println("Stopping TCP server")
-			fmt.Println("-------------------------")
+		//read the TCP server’s response
+		message, _ := bufio.NewReader(c).ReadString('\n')
+		fmt.Print("SERVER : " + message)
+
+		q = q[1:]
+		fmt.Println("updated queue =", q)
+		// terminate when you send the STOP command to the TCP server
+		if strings.TrimSpace(string(text)) == "STOP" {
+			fmt.Println("TCP client exiting...")
 			return
 		}
-		if strings.TrimSpace(string(text)) == "printAll" {
-			fmt.Println("All data")
-			fmt.Println("-------------------------")
-
-		}
-
-		if strings.TrimSpace(string(text)) == "new" {
-			fmt.Print("Username: ")
-			user, _ := reader.ReadString('\n')
-			fmt.Fprintf(c, user+"\n")
-
-		}
-
-		if strings.TrimSpace(string(text)) == "break" {
-			fmt.Print("You want to break communication? : ")
-			user, _ := reader.ReadString('\n')
-			fmt.Fprintf(c, user+"\n")
-
-		}
-
-		if strings.TrimSpace(string(text)) == "first" {
-			fmt.Println("First message of username: ")
-			fmt.Println("-------------------------")
-			user, _ := reader.ReadString('\n')
-			fmt.Fprintf(c, user+"\n")
-
-		}
-
-		if strings.TrimSpace(string(text)) == "print" {
-			fmt.Println("Printing data")
-			fmt.Println("-------------------------")
-
-		}
-
 	}
 }

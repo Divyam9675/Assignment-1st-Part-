@@ -1,3 +1,3 @@
-module TCP-2
+module TCP-concurrent
 
 go 1.15
